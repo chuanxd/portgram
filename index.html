@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta property="og:url" content="http://openac.ohyayaya.com/index.html">
+		<meta property="og:title" content="Portgram">
+		<meta property="og:image" content="http://ohyayaya.com/img/logoyaya0.png">
+		<meta property="og:description" content="Portgram">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Portgram</title>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		<link href="style/style.css" rel="stylesheet">
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+		<style>
+			#map{width: 980px;height: 400px;}
+		</style>
+		<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+	</head>
+	<body>
+		<div class="container">
+			<h1>Portgram</h1>
+			<div id="loginButton" class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="false" data-scope="public_profile,email" onlogin="checkLoginState();"></div>
+		</div>
+
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="http://app.essoduke.org/tinyMap/jquery.tinyMap-2.6.2.min.js"></script>
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+		<div id="fb-root"></div>
+		<script src="http://connect.facebook.net/zh_TW/all.js"></script>
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+			  js = d.createElement(s); js.id = id;
+			  //js.src = "//connect.facebook.net/zh_TW/sdk.js#xfbml=1&appId=682294558530592&version=v2.0";
+			  fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
+		</script>
+		<script>
+			function statusChangeCallback(response) {
+		    //console.log('statusChangeCallback');
+		    //console.log(response);
+		    // The response object is returned with a status field that lets the
+		    // app know the current login status of the person.
+		    // Full docs on the response object can be found in the documentation
+		    // for FB.getLoginStatus().
+		    if (response.status === 'connected') {
+		      // Logged into your app and Facebook.
+		      //alert("connected");
+		      $("#loginButton").hide();
+		      uid = response.authResponse.userID; // Get UID
+			 		accessToken = response.authResponse.accessToken; // Get accessToken
+			 		console.log("uid"+uid);
+			 		console.log("accessToken"+accessToken);
+			 		FB.api("/me",function(response){
+			 			console.log(response.name);
+			 			userData = {"state": "logined","UID": uid,"name": response.name,"email": response.email};
+				 		$.ajax({
+							url: "./main.php",
+							type:"POST",
+							cache: false,
+							data: userData,
+							dataType: "html",
+							success: function(response){
+								//alert(response);
+							},
+							error: function() {alert("SEND USERDATA IS ERROR!!!");}
+						});
+			 		});
+		    } else if (response.status === 'not_authorized') {
+		      // The person is logged into Facebook, but not your app.
+		      // document.getElementById('status').innerHTML = 'Please log ' +
+		      //   'into this app.';
+		      console.log("not_authorized");
+		    } else {
+		      // The person is not logged into Facebook, so we're not sure if
+		      // they are logged into this app or not.
+		      // document.getElementById('status').innerHTML = 'Please log ' +
+		      //   'into Facebook.';
+		    }
+		  }
+		  function checkLoginState() {
+		    FB.getLoginStatus(function(response) {
+		      statusChangeCallback(response);
+		    });
+		  }
+		   window.fbAsyncInit = function() {
+			  FB.init({
+			    appId      : '682294558530592',
+			    cookie     : true,  // enable cookies to allow the server to access 
+			                        // the session
+			    xfbml      : true,  // parse social plugins on this page
+			    version    : 'v2.0' // use version 2.0
+			  });
+			  FB.getLoginStatus(function(response) {
+			    statusChangeCallback(response);
+			  });
+
+			 };
+		</script>
+	</body>
+</html>
